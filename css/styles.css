@@ -1,0 +1,125 @@
+﻿/*//////// AUTHOR & APPLICATION INFORMATION //////////////////////////
+//
+//   Author: Chris Sergent
+//   Date:   January 6, 2014
+//   Application: GIS Mobile
+//
+////////////////////////////////////////////////////////////////////*/
+/* Validate your CSS files at: http://jigsaw.w3.org/css-validator/#validate_by_upload */
+/* External Styles */
+/* WARNING: You will need to update this reference if you use a different API. */
+@import url("http://js.arcgis.com/3.12/dijit/themes/soria/soria.css");
+@import url("http://js.arcgis.com/3.12/esri/css/esri.css");
+
+/*//////// Gutter Handler ////////////////////////////////////////////
+// 
+//      Handles the gutters in the browsers default padding by 
+//      by removing the padding
+// 
+////////////////////////////////////////////////////////////////////*/
+
+/*//////// Gutter Handler ////////////////////////////////////////////
+// 
+//      Handles the gutters in the browsers default padding by 
+//      by removing the padding
+// 
+////////////////////////////////////////////////////////////////////*/
+
+/*************************************** 
+|
+|       HTML ELEMENTS BEGIN
+|
+***************************************/
+/*---------------------------------
+|       PAGE AND BODY
+/--------------------------------*/
+
+html, body
+{
+    /* make the body expand to fill the visible window */
+    font-family: Verdana, Helvetica, Arial, sans-serif;
+    line-height: 125%;
+    height:100%;
+    width:100%;
+    padding:0;
+    margin:0;
+    /* erase window level scrollbars */
+    overflow: hidden
+}
+
+/*---------------------------------
+|       HEADINGS
+/--------------------------------*/
+h1, h2, h3
+{
+    margin:05em 0 1em 0
+}
+
+/*---------------------------------
+|       PARAGRAPHS
+/--------------------------------*/
+p
+{
+    margin:00 1em 0
+}
+
+/*************************************** 
+|
+|       HTML ELEMENTS END
+|
+***************************************/
+
+/*......................................
+|
+|       HTML CLASSES BEGIN
+|
+.......................................*/
+
+    /* We have no classes yet */
+
+/*......................................
+|
+|       HTML CLASSES END
+|
+.......................................*/
+
+/*######################################
+|
+|       HTML TAGS BEGIN
+|
+#######################################*/
+/*---------------------------------
+|       MAP
+/--------------------------------*/
+
+#mapSection
+{
+    position:absolute;
+    top:0%;
+    left:0%;
+    height:100%;
+    width:100%;
+    background-color:White;
+    color:Black;
+    z-index:0;
+    display:block
+      
+}
+
+
+/*----------------------------------
+|       TOOLS
+/---------------------------------*/
+#homeButton
+{
+    position:absolute;
+    top:95px;
+    left:20px;
+    z-index:50;
+}
+
+/*######################################
+|
+|       HTML TAGS END
+|
+#######################################*/
