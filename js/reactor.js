@@ -16,6 +16,7 @@ require(["esri/map",                                // mapSection
          "esri/config",                             // The default values for all JS API configuration options. 
          "esri/dijit/HomeButton",                   // homeButton
          "esri/dijit/LocateButton",                 // locateButton
+         "esri/dijit/OverviewMap", // Overview Map
          "esri/geometry/Extent", // The minimum and maximum X- and Y- coordinates of a bounding box. Used to set custom extent
          "esri/layers/ArcGISDynamicMapServiceLayer",
          "esri/layers/ArcGISTiledMapServiceLayer",
@@ -27,7 +28,7 @@ require(["esri/map",                                // mapSection
          "dojo/domReady!"],    // An AMD loaded plugin that will wait until the DOM has finished loading before returning.
 
          // Set variables to be used with references (write variables and references in the same order and be careful of typos on your references)
-         function (Map, esriConfig, HomeButton, LocateButton, Extent,
+         function (Map, esriConfig, HomeButton, LocateButton, OverviewMap, Extent,
                    ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer,
                    FeatureLayer, GeometryService, dom, on, parser) {
 
@@ -101,7 +102,7 @@ require(["esri/map",                                // mapSection
              home.startup();
              // add homeButton end
 
-             // Begin geolocate button
+             // Begin geolocate button - https://geonet.esri.com/message/440082#440082
              // add geolocate button to find the location of the current user
              map.on("load", function () {
                  geoLocate = new LocateButton({
@@ -115,5 +116,13 @@ require(["esri/map",                                // mapSection
                  geoLocate.locate();
              });
              // End geolocate button
+
+             // overviewMap Begin
+             var overviewMapDijit = new OverviewMap({
+                 map: map,
+                 visible: false
+             });
+             overviewMapDijit.startup();
+             // overviewMap End
 
          });
