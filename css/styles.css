@@ -127,7 +127,7 @@ p
     z-index:50;
 }
 
-/* Scalebar */
+/* Scalebar style begin */
 /* Used CSS Gradient Generator - http://www.colorzilla.com/gradient-editor/ */
 .esriScalebarLine, .esriScalebarMetricLine
 {
@@ -149,6 +149,45 @@ p
         1px 1px 0 #fff;
                
 }
+/* Scalebar style end */
+
+/* Measurement tool style begin */
+#titlePane
+{
+    width:auto;
+    position:absolute;
+    left:30%;
+    bottom:0%;
+    background-color:White;
+    border-color:Black;
+    z-index:50;
+}
+.soria  .dijitTitlePaneTitle {
+    background: #fff;
+    font-weight:600;
+    border: none;
+    border-bottom:solid 1px #29201A;
+    border-top:solid 1px #29201A;
+}
+           
+.soria .dijitTitlePaneTitleHover
+{
+    background:#eee;
+}
+           
+.soria .dijitTitlePaneTitleActive
+{
+    background:#808775;
+}
+           
+.soria .dijitTitlePaneContentOuter
+{
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+}
+            
+/* Measurement tool style end */
 
 
 /*######################################
