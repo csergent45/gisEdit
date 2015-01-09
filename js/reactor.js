@@ -29,7 +29,7 @@ require(["esri/map",                                // mapSection
          "dojo/domReady!"],    // An AMD loaded plugin that will wait until the DOM has finished loading before returning.
 
          // Set variables to be used with references (write variables and references in the same order and be careful of typos on your references)
-         function (Map, esriConfig, HomeButton, LocateButton, Scalebar, OverviewMap, Extent,
+         function (Map, esriConfig, HomeButton, LocateButton, OverviewMap, Scalebar, Extent,
                    ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer,
                    FeatureLayer, GeometryService, dom, on, parser) {
 
