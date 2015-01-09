@@ -127,6 +127,30 @@ p
     z-index:50;
 }
 
+/* Scalebar */
+/* Used CSS Gradient Generator - http://www.colorzilla.com/gradient-editor/ */
+.esriScalebarLine, .esriScalebarMetricLine
+{
+    background: rgb(247,247,247); /* Old browsers */
+    background: -moz-radial-gradient(center, ellipse cover,  rgba(247,247,247,1) 0%, rgba(219,219,219,1) 50%, rgba(209,209,209,1) 51%, rgba(5,5,5,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(247,247,247,1)), color-stop(50%,rgba(219,219,219,1)), color-stop(51%,rgba(209,209,209,1)), color-stop(100%,rgba(5,5,5,1))); /* Chrome,Safari4+ */
+    background: -webkit-radial-gradient(center, ellipse cover,  rgba(247,247,247,1) 0%,rgba(219,219,219,1) 50%,rgba(209,209,209,1) 51%,rgba(5,5,5,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-radial-gradient(center, ellipse cover,  rgba(247,247,247,1) 0%,rgba(219,219,219,1) 50%,rgba(209,209,209,1) 51%,rgba(5,5,5,1) 100%); /* Opera 12+ */
+    background: -ms-radial-gradient(center, ellipse cover,  rgba(247,247,247,1) 0%,rgba(219,219,219,1) 50%,rgba(209,209,209,1) 51%,rgba(5,5,5,1) 100%); /* IE10+ */
+    background: radial-gradient(ellipse at center,  rgba(247,247,247,1) 0%,rgba(219,219,219,1) 50%,rgba(209,209,209,1) 51%,rgba(5,5,5,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#050505',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+    border-width:thin;
+    }
+.esriScalebarLabel, .esriScalebarLineLabel,.esriScalebarSecondNumber, .esriScaleLabelDiv
+{
+    text-shadow:-1px -1px 0 #fff,  
+        1px -1px 0 #fff,
+        -1px 1px 0 #fff,
+        1px 1px 0 #fff;
+               
+}
+
+
 /*######################################
 |
 |       HTML TAGS END
