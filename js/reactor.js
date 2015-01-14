@@ -6,11 +6,15 @@
 //   Application: GIS Mobile
 //
 ////////////////////////////////////////////////////////////////////////////////////
+/// <reference path="jquery-1.9.1.js" />
+/// <reference path="jquery.ui.touch-punch.js" />
+/// <reference path="jquery-ui-1.10.3.custom.min.js" />
 
 
 // Comments describing require statements are definition from https://developers.arcgis.com/javascript/jsapi/ 
 // and http://dojotoolkit.org/reference-guide/1.9/
 
+var app = {};
 // Get references to modules to be used
 require(["esri/map",                                // mapSection
          "esri/config",                             // The default values for all JS API configuration options. 
@@ -38,9 +42,13 @@ require(["esri/map",                                // mapSection
          
          "esri/symbols/SimpleFillSymbol", // measurementDiv
          "esri/symbols/SimpleLineSymbol", // measurementDiv
-         
-         "esri/tasks/GeometryService",    // Represents a geometry service resource exposed by the ArcGIS Server REST API.
 
+         "esri/tasks/GeometryService",    // Represents a geometry service resource exposed by the ArcGIS Server REST API.
+         "esri/tasks/PrintTask",          // printer
+         "esri/tasks/PrintParameters",    // printer
+         "esri/tasks/PrintTemplate",      // printer
+
+         "dojo/_base/array",              
          "dojo/dom",                            // It is used for code like - dom.byId("someNode")
          "dojo/keys",
          "dojo/on",                             // This module is used based on an even such as on("click")
@@ -55,7 +63,8 @@ require(["esri/map",                                // mapSection
          // Set variables to be used with references (write variables and references in the same order and be careful of typos on your references)
          function (Map, esriConfig, Color, HomeButton, LocateButton, Measurement, OverviewMap, Scalebar, Extent,
                    ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer,
-                   LayerDrawingOptions, FeatureLayer, SimpleRenderer, SnappingManager, has, SimpleFillSymbol, SimpleLineSymbol, GeometryService, dom, keys, on, parser) {
+                   LayerDrawingOptions, FeatureLayer, SimpleRenderer, SnappingManager, has, SimpleFillSymbol, SimpleLineSymbol, GeometryService,
+                   PrintTask, PrintParameters, PrintTemplate, arrayUtils,  dom, keys, on, parser) {
 
              parser.parse();
 
@@ -196,6 +205,86 @@ require(["esri/map",                                // mapSection
 
 
              // end measurement tool
+
+             // begin print Task
+             app.printUrl = "http://maps.decaturil.gov/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task";
+
+             function createPrintTask(printTitle) {
+                 var template = new PrintTemplate();
+                 template.layout = document.getElementById("printLayoutId").value; // Assigns the layout
+                 template.format = document.getElementById("printFormatId").value; // Assigns the format to printout to
+                 template.layoutOptions = {
+                     legendLayers: [], // empty array means no legend
+                     scalebarUnit: "Miles",
+                     titleText: printTitle // title to display
+                 };
+
+                 var params = new PrintParameters();
+                 params.map = map;
+                 params.template = template;
+
+                 var printTask = new PrintTask(app.printUrl);
+                 var printObj = {
+                     printTask: printTask,
+                     params: params
+                 }
+                 return printObj;
+             }
+
+
+             // Activates printer
+             on(dom.byId("btnPrintReady"), "click", function () {
+                 document.getElementById("btnPrintReady").innerHTML = "Printing..."
+                 document.getElementById("btnPrintReady").disabled = true; // Button disable while printing
+                 var printObj = createPrintTask(document.getElementById("printTitleId").value); // Gets titles displayed
+                 var printTask = printObj.printTask;
+                 printTask.execute(printObj.params, function (evt) {
+                     document.getElementById("btnPrintReady").style.display = 'none';
+                     document.getElementById("printResult").href = evt.url;
+                     document.getElementById("printResult").style.display = 'block';
+                     on(dom.byId("printResult"), "click", function () {
+                         document.getElementById("btnPrintReady").innerHTML = "Print";
+                         document.getElementById("btnPrintReady").style.display = 'block';
+                         document.getElementById("btnPrintReady").disabled = false; // Button enabled to produce map print
+                         document.getElementById("printResult").style.display = 'none';
+                     });
+                 }, function (evt) {
+                     document.getElementById("btnPrintReady").disabled = false;
+                     document.getElementById("btnPrintReady").innerHTML = "Print";
+                 });
+             });
+             // end of print task
+
+             // Hides print widget
+             on(dom.byId("closePrint"), "click", function () {
+                 document.getElementById("printer").style.visibility = 'hidden';
+             });
+
+             // Shows tools
+             on(dom.byId("showTools"), "click", function () {
+                 document.getElementById("showToolsButton").style.visibility = 'hidden';
+                 document.getElementById("hideToolsButton").style.visibility = 'visible';
+                 document.getElementById("showPrinter").style.visibility = 'visible';
+             });
+
+             // Hide tools
+             on(dom.byId("hideTools"), "click", function () {
+                 document.getElementById("showToolsButton").style.visibility = 'visible';
+                 document.getElementById("hideToolsButton").style.visibility = 'hidden';
+                 document.getElementById("showPrinter").style.visibility = 'hidden';
+                 document.getElementById("printer").style.visibility = 'hidden';
+             });
+
+             // Allow print widget to move with mouse or finger
+             jQuery(function () {
+                 jQuery("#printer").draggable({ containment: "window" });
+             });
+
+             // Show print widget
+             on(dom.byId("showPrintWidget"), "click", function () {
+                 document.getElementById("printer").style.visibility = 'visible';
+             });
+
 
 
          });

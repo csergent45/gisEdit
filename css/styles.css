@@ -189,6 +189,103 @@ p
             
 /* Measurement tool style end */
 
+/* Printer CSS Begin */
+    h3 {
+      margin: 0 0 5px 0;
+      border-bottom: 1px solid #444;
+      padding: 0 0 5px 0;
+      text-align: center;
+    }
+    .shadow {
+      -moz-box-shadow: 0 0 5px #888;
+      -webkit-box-shadow: 0 0 5px #888;
+      box-shadow: 0 0 5px #888;
+    }
+    #printer {
+      background: #fff;
+      border: 2px solid #666;
+      border-radius: 5px;
+      bottom: 20px;
+      color: #666;
+      font-family: arial;
+      height: 300px;
+      top:30%;
+      left: 30%;
+      margin: 5px;
+      padding: 10px;
+      position: absolute;
+      width: 300px;
+      z-index: 40;
+      visibility: hidden;
+    }
+    #printer a {
+      /*border-bottom: 1px solid #888;*/
+      color: #666;
+      text-decoration: none;
+    }
+    #printer a:hover,
+    #printer a:active,
+    #printer a:visited {
+      border: none;
+      color: #666;
+      text-decoration: none;
+    }
+    #note {
+      padding: 0 0 10px 0;
+    }
+    #info,
+    #information {
+      padding: 10px 0 0 0;
+    }
+   
+    #showPrinter {
+      height: 30px;
+      width: 30px;
+      position: absolute;
+      top: 260px;
+      left: 20px;
+      z-index: 50;
+      padding: 5px 6px 5px 6px;
+      background-color: #f9f8f8;
+      border-radius: 5px;
+      visibility: hidden;
+    }
+    /* Printer CSS End */
+    
+    /* Style tool buttons on hover */
+     #showTools:hover, #hideTools:hover, #showPrinter:hover, #editor:hover
+     {
+         background:#eee;
+     }
+   
+    #showTools {
+      height: 30px;
+      width: 30px;
+      position: absolute;
+      top: 200px;
+      left: 20px;
+      z-index: 50;
+      padding: 5px 6px 5px 6px;
+      background-color: #f9f8f8;
+      border-radius: 5px;
+      visibility: visible;
+    }
+   
+   
+    #hideTools {
+      height: 20px;
+      width: 30px;
+      position: absolute;
+      top: 200px;
+      left: 20px;
+      z-index: 50;
+      padding: 5px 6px 5px 6px;
+      background-color: #f9f8f8;
+      border-radius: 5px;
+      visibility: hidden;
+    }
+    
+
 
 /*######################################
 |
