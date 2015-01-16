@@ -21,13 +21,17 @@ require(["esri/map",                                // mapSection
          
          "esri/Color",  // measurementDiv
          
+         "esri/dijit/Geocoder",                     // search
          "esri/dijit/HomeButton",                   // homeButton
          "esri/dijit/LocateButton",                 // locateButton
          "esri/dijit/Measurement", // measurementDiv
          "esri/dijit/OverviewMap", // Overview Map
          "esri/dijit/Scalebar",  // Scalebar
-         
+
          "esri/geometry/Extent", // The minimum and maximum X- and Y- coordinates of a bounding box. Used to set custom extent
+         "esri/geometry/screenUtils", // search
+
+         "esri/graphic", // search
          
          "esri/layers/ArcGISDynamicMapServiceLayer",
          "esri/layers/ArcGISTiledMapServiceLayer",
@@ -42,17 +46,21 @@ require(["esri/map",                                // mapSection
          
          "esri/symbols/SimpleFillSymbol", // measurementDiv
          "esri/symbols/SimpleLineSymbol", // measurementDiv
+         "esri/symbols/SimpleMarkerSymbol", // search
 
          "esri/tasks/GeometryService",    // Represents a geometry service resource exposed by the ArcGIS Server REST API.
          "esri/tasks/PrintTask",          // printer
          "esri/tasks/PrintParameters",    // printer
          "esri/tasks/PrintTemplate",      // printer
 
-         "dojo/_base/array",              
+         "dojo/_base/array",
+         "dojo/_base/Color",                    // search
          "dojo/dom",                            // It is used for code like - dom.byId("someNode")
+         "dojo/dom-construct",                  // search
          "dojo/keys",
          "dojo/on",                             // This module is used based on an even such as on("click")
          "dojo/parser",                         // The Dojo Parser is an optional module.
+         "dojo/query",                      // search
          
          "dijit/layout/BorderContainer",
          "dijit/layout/ContentPane",
@@ -61,10 +69,10 @@ require(["esri/map",                                // mapSection
          "dojo/domReady!"],    // An AMD loaded plugin that will wait until the DOM has finished loading before returning.
 
          // Set variables to be used with references (write variables and references in the same order and be careful of typos on your references)
-         function (Map, esriConfig, Color, HomeButton, LocateButton, Measurement, OverviewMap, Scalebar, Extent,
+         function (Map, esriConfig, Color, Geocoder, HomeButton, LocateButton, Measurement, OverviewMap, Scalebar, Extent, screenUtils, Graphic,
                    ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer,
-                   LayerDrawingOptions, FeatureLayer, SimpleRenderer, SnappingManager, has, SimpleFillSymbol, SimpleLineSymbol, GeometryService,
-                   PrintTask, PrintParameters, PrintTemplate, arrayUtils,  dom, keys, on, parser) {
+                   LayerDrawingOptions, FeatureLayer, SimpleRenderer, SnappingManager, has, SimpleFillSymbol, SimpleLineSymbol, SimpleMarkerSymbol, GeometryService,
+                   PrintTask, PrintParameters, PrintTemplate, arrayUtils,  Color, dom, domConstruct, keys, on, parser, query) {
 
              parser.parse();
 
@@ -284,6 +292,44 @@ require(["esri/map",                                // mapSection
              on(dom.byId("showPrintWidget"), "click", function () {
                  document.getElementById("printer").style.visibility = 'visible';
              });
+
+
+             // begin geocoder
+             var geocoder = new Geocoder({
+                 arcgisGeocoder: false,
+                 geocoders: [{
+                     url: "http://maps.decaturil.gov/arcgis/rest/services/Public/WebAddressLocator/GeocodeServer",
+                     name: "Web Address Locator",
+                     placeholder: "Find address",
+                     outFields: "*"
+                 }],
+                 map: map,
+                 autoComplete: true,
+                 zoomScale: 600
+             }, dom.byId("search"));
+             geocoder.startup();
+
+             geocoder.on("select", showLocation);
+
+
+
+             function showLocation(evt) {
+                 map.graphics.clear();
+                 var point = evt.result.feature.geometry;
+                 var symbol = new SimpleMarkerSymbol()
+                                .setStyle("square")
+                                .setColor([255, 0, 0, 0.5]);
+                 var graphic = new Graphic(point, symbol);
+                 map.graphics.add(graphic);
+
+                 map.infoWindow.setTitle("Search Result");
+                 map.infoWindow.setContent(evt.result.name);
+                 map.infoWindow.show(evt.result.feature.geometry);
+                 map.infoWindow.on('hide', function () {
+                     map.graphics.remove(graphic);
+                 });
+             }
+             // end geocoder
 
 
 
