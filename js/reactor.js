@@ -13,14 +13,21 @@
 
 // Comments describing require statements are definition from https://developers.arcgis.com/javascript/jsapi/ 
 // and http://dojotoolkit.org/reference-guide/1.9/
-
+var map;
+var editorWidget = null;
+var featureLayerInfos;
+var graphic;
+var currLocation;
+var watchId;
+var pt;
 var app = {};
 // Get references to modules to be used
 require(["esri/map",                                // mapSection
          "esri/config",                             // The default values for all JS API configuration options. 
-         
+
          "esri/Color",  // measurementDiv
-         
+
+         "esri/dijit/editing/Editor",           // Editor
          "esri/dijit/Geocoder",                     // search
          "esri/dijit/HomeButton",                   // homeButton
          "esri/dijit/LocateButton",                 // locateButton
@@ -29,21 +36,26 @@ require(["esri/map",                                // mapSection
          "esri/dijit/Scalebar",  // Scalebar
 
          "esri/geometry/Extent", // The minimum and maximum X- and Y- coordinates of a bounding box. Used to set custom extent
+         "esri/geometry/Point",
          "esri/geometry/screenUtils", // search
 
          "esri/graphic", // search
-         
+
+         "esri/IdentityManager", // editor
+
          "esri/layers/ArcGISDynamicMapServiceLayer",
          "esri/layers/ArcGISTiledMapServiceLayer",
          "esri/layers/LayerDrawingOptions", // measurementDiv
          "esri/layers/FeatureLayer",
-         
+
          "esri/renderers/SimpleRenderer", // measurementDiv
-         
+
          "esri/SnappingManager", // measurementDiv    -add snapping capability
-         
+
          "esri/sniff", // measurementDiv
-         
+
+         "esri/SpatialReference",  // editor
+
          "esri/symbols/SimpleFillSymbol", // measurementDiv
          "esri/symbols/SimpleLineSymbol", // measurementDiv
          "esri/symbols/SimpleMarkerSymbol", // search
@@ -52,6 +64,9 @@ require(["esri/map",                                // mapSection
          "esri/tasks/PrintTask",          // printer
          "esri/tasks/PrintParameters",    // printer
          "esri/tasks/PrintTemplate",      // printer
+         "esri/tasks/ProjectParameters",  // editor
+
+         "esri/toolbars/draw",
 
          "dojo/_base/array",
          "dojo/_base/Color",                    // search
@@ -61,28 +76,45 @@ require(["esri/map",                                // mapSection
          "dojo/on",                             // This module is used based on an even such as on("click")
          "dojo/parser",                         // The Dojo Parser is an optional module.
          "dojo/query",                      // search
-         
+         "dojo/i18n!esri/nls/jsapi",
+         "dojo/dnd/Moveable",
+
          "dijit/layout/BorderContainer",
          "dijit/layout/ContentPane",
          "dijit/TitlePane",
          "dijit/form/CheckBox",
          "dojo/domReady!"],    // An AMD loaded plugin that will wait until the DOM has finished loading before returning.
 
-         // Set variables to be used with references (write variables and references in the same order and be careful of typos on your references)
-         function (Map, esriConfig, Color, Geocoder, HomeButton, LocateButton, Measurement, OverviewMap, Scalebar, Extent, screenUtils, Graphic,
-                   ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer,
-                   LayerDrawingOptions, FeatureLayer, SimpleRenderer, SnappingManager, has, SimpleFillSymbol, SimpleLineSymbol, SimpleMarkerSymbol, GeometryService,
-                   PrintTask, PrintParameters, PrintTemplate, arrayUtils,  Color, dom, domConstruct, keys, on, parser, query) {
+// Set variables to be used with references (write variables and references in the same order and be careful of typos on your references)
+         function (Map, esriConfig, Color,
+                   Editor, Geocoder, HomeButton,
+                   LocateButton, Measurement,
+                   OverviewMap, Scalebar, Extent,
+                   Point, screenUtils, Graphic,
+                   IdentityManager, ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer,
+                   LayerDrawingOptions, FeatureLayer, SimpleRenderer,
+                   SnappingManager, has, SpatialReference,
+                   SimpleFillSymbol, SimpleLineSymbol, SimpleMarkerSymbol,
+                   GeometryService, PrintTask, PrintParameters,
+                   PrintTemplate, ProjectParameters, Draw,
+                   arrayUtils, Color, dom,
+                   domConstruct, keys, on,
+                   parser, query, i18n,
+                   Moveable) {
 
              parser.parse();
+
+             //snapping is enabled for this sample - change the tooltip to reflect this
+             i18n.toolbars.draw.start += "<br/>Press <b>CTRL</b> to enable snapping";
+             i18n.toolbars.draw.addPoint += "<br/>Press <b>CTRL</b> to enable snapping";
 
              /* The proxy comes before all references to web services */
              /* Files required for security are proxy.config, web.config and proxy.ashx 
              - set security in Manager to Private, available to selected users and select 
-               Allow access to all users who are logged in
+             Allow access to all users who are logged in
              (Roles are not required)
              /*
-                Information on the proxy can be found at: https://developers.arcgis.com/javascript/jshelp/ags_proxy.html
+             Information on the proxy can be found at: https://developers.arcgis.com/javascript/jshelp/ags_proxy.html
              */
 
              // Proxy Definition Begin 
@@ -99,7 +131,7 @@ require(["esri/map",                                // mapSection
              //-----------------------------------------------------------
 
              // declare geometry service
-             esriConfig.defaults.geometryService = 
+             esriConfig.defaults.geometryService =
              new GeometryService("http://maps.decaturil.gov/arcgis/rest/services/Utilities/Geometry/GeometryServer");
 
              // set custom extent
@@ -121,6 +153,9 @@ require(["esri/map",                                // mapSection
                  logo: false
              });
 
+             // Starts initEditing after the feature layer(s) have been added
+             map.on("layers-add-result", initEditing);
+
              // add imagery
              var tiled = new ArcGISTiledMapServiceLayer("http://maps.decaturil.gov/arcgis/rest/services/Aerial_2014_Tiled/MapServer");
              map.addLayer(tiled);
@@ -129,13 +164,67 @@ require(["esri/map",                                // mapSection
              // add operational layers
              map.addLayer(operationalLayer);
 
-             // add point feature layer
-             var pointFeatureLayer = new FeatureLayer("http://maps.decaturil.gov/arcgis/rest/services/Test/FeatureServer/0");
-             map.addLayer(pointFeatureLayer);
+             // add point feature layer for editing
+             var pointFeatureLayer = new FeatureLayer("http://maps.decaturil.gov/arcgis/rest/services/testSecure/FeatureServer/0", {
+                 mode: FeatureLayer.MODE_ONDEMAND,
+                 outFields: ["*"]
+             });
+             map.addLayers([pointFeatureLayer]);
 
              //-----------------------------------------------------------
              // Map Services End
              //-----------------------------------------------------------
+
+             // Editor Widget Begin 
+             // settings for the editor widget
+             function initEditing(event) {
+                 // sizes the edit window
+                 map.infoWindow.resize(400, 300);
+                 featureLayerInfos = arrayUtils.map(event.layers, function (layer) {
+                     return {
+                         "featureLayer": layer.layer
+                     };
+                 });
+
+                 createEditor();
+                 var options = {
+                     snapKey: keys.copyKey
+                 };
+                 map.enableSnapping(options);
+             }
+
+
+             function createEditor() {
+                 if (editorWidget) {
+                     return;
+                 }
+                 var settings = {
+                     map: map,
+                     layerInfos: featureLayerInfos,
+                     toolbarVisible: true,
+                     enableUndoRedo: true,
+                     maxUndoOperations: 20
+                 };
+                 var params = {
+                     settings: settings
+                 };
+                 editorWidget = new Editor(params, domConstruct.create("div"));
+                 domConstruct.place(editorWidget.domNode, "editorDiv");
+
+                 editorWidget.startup();
+
+
+
+             }
+
+             function destroyEditor() {
+                 if (editorWidget) {
+                     editorWidget.destroy();
+                     editorWidget = null;
+                 }
+             }
+             // Editor widget ends
+
 
              // add homeButton begin
              var home = new HomeButton({
@@ -273,6 +362,7 @@ require(["esri/map",                                // mapSection
                  document.getElementById("showToolsButton").style.visibility = 'hidden';
                  document.getElementById("hideToolsButton").style.visibility = 'visible';
                  document.getElementById("showPrinter").style.visibility = 'visible';
+                 document.getElementById("editor").style.visibility = 'visible';
              });
 
              // Hide tools
@@ -281,6 +371,25 @@ require(["esri/map",                                // mapSection
                  document.getElementById("hideToolsButton").style.visibility = 'hidden';
                  document.getElementById("showPrinter").style.visibility = 'hidden';
                  document.getElementById("printer").style.visibility = 'hidden';
+                 document.getElementById("editor").style.visibility = 'hidden';
+             });
+
+             // Hide editor
+             on(dom.byId("closeEditor"), "click", function () {
+                 document.getElementById("templatePickerPane").style.visibility = 'hidden';
+             });
+
+
+             // Show Editor
+             on(dom.byId("showEditorWidget"), "click", function () {
+                 document.getElementById("templatePickerPane").style.visibility = 'visible';
+
+             });
+
+
+             // Allow editor to move with mouse or finger
+             jQuery(function () {
+                 jQuery("#templatePickerPane").draggable({ containment: "window" });
              });
 
              // Allow print widget to move with mouse or finger
@@ -309,11 +418,11 @@ require(["esri/map",                                // mapSection
              }, dom.byId("search"));
              geocoder.startup();
 
-             geocoder.on("select", showLocation);
+             geocoder.on("select", showGeocodeLocation);
 
 
 
-             function showLocation(evt) {
+             function showGeocodeLocation(evt) {
                  map.graphics.clear();
                  var point = evt.result.feature.geometry;
                  var symbol = new SimpleMarkerSymbol()
@@ -327,6 +436,8 @@ require(["esri/map",                                // mapSection
                  map.infoWindow.show(evt.result.feature.geometry);
                  map.infoWindow.on('hide', function () {
                      map.graphics.remove(graphic);
+                     destroyEditor();
+                     createEditor();
                  });
              }
              // end geocoder
