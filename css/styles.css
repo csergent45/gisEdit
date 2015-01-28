@@ -374,6 +374,44 @@ p
         left:75px;
     }
     
+    
+    /* Mail Pane Style */
+    #mailPane
+    {
+        width:240px;
+        position:absolute;
+        right:0%;
+        bottom:0%;
+        background-color:White;
+        border-color:Black;
+        width:auto;
+        z-index:50;
+    }
+    .soria  .dijitTitlePaneTitle {
+        background: #fff;
+        font-weight:600;
+        border: none;
+        border-bottom:solid 1px #29201A;
+        border-top:solid 1px #29201A;
+    }
+           
+    .soria .dijitTitlePaneTitleHover
+    {
+        background:#eee;
+    }
+           
+    .soria .dijitTitlePaneTitleActive
+    {
+        background:#808775;
+    }
+           
+    .soria .dijitTitlePaneContentOuter
+    {
+        border-right: none;
+        border-bottom: none;
+        border-left: none;
+    }
+    
 
 
 /*######################################

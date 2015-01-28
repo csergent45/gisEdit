@@ -213,8 +213,6 @@ require(["esri/map",                                // mapSection
 
                  editorWidget.startup();
 
-
-
              }
 
              function destroyEditor() {
@@ -421,7 +419,6 @@ require(["esri/map",                                // mapSection
              geocoder.on("select", showGeocodeLocation);
 
 
-
              function showGeocodeLocation(evt) {
                  map.graphics.clear();
                  var point = evt.result.feature.geometry;
@@ -441,7 +438,5 @@ require(["esri/map",                                // mapSection
                  });
              }
              // end geocoder
-
-
 
          });
